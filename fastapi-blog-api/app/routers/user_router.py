@@ -8,6 +8,8 @@ from app.schemas.user_schema import UserCreate, UserResponse
 
 from app.schemas.user_schema import UserLogin
 from app.utils.token import create_access_token
+from app.utils.dependencies import get_current_user
+from fastapi.security import OAuth2PasswordRequestForm
 
 
 router = APIRouter()
@@ -26,23 +28,32 @@ def get_users(db: Session = Depends(get_db)):
 
 
 @router.post("/login")
-def login(user: UserLogin, db: Session = Depends(get_db)):
+def login(
+    form_data: OAuth2PasswordRequestForm = Depends(),
+    db: Session = Depends(get_db)
+):
 
-    authenticated_user = user_service.authenticate_user(
-        db, 
-        user.email,
-        user.password
+    user = user_service.authenticate_user(
+        db,
+        form_data.username,   # username field contains email
+        form_data.password
     )
 
-    if not authenticated_user:
+    if not user:
         raise HTTPException(status_code=401, detail="Invalid credentials")
 
-
-    access_token = create_access_token(
-        data={"sub": authenticated_user.email}
-    )
+    token = create_access_token({"user_id": user.id})
 
     return {
-        "access_token": access_token,
+        "access_token": token,
         "token_type": "bearer"
+    }
+
+
+@router.get("/profile")
+def get_profile(user_id: int = Depends(get_current_user)):
+    
+    return {
+        "message": "Protected route accessed",
+        "user_id": user_id
     }

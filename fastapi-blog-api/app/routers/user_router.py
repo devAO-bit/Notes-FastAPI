@@ -7,6 +7,7 @@ from app.services import user_service
 from app.schemas.user_schema import UserCreate, UserResponse
 
 from app.schemas.user_schema import UserLogin
+from app.utils.token import create_access_token
 
 
 router = APIRouter()
@@ -36,4 +37,12 @@ def login(user: UserLogin, db: Session = Depends(get_db)):
     if not authenticated_user:
         raise HTTPException(status_code=401, detail="Invalid credentials")
 
-    return {"message": "Login successful"}
+
+    access_token = create_access_token(
+        data={"sub": authenticated_user.email}
+    )
+
+    return {
+        "access_token": access_token,
+        "token_type": "bearer"
+    }

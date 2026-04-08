@@ -7,6 +7,8 @@ from app.database import get_db
 from app.schemas.note_schema import NoteCreate, NoteResponse
 from app.services import note_service
 from app.utils.dependencies import get_current_user
+from app.services.ai_service import generate_title
+from app.schemas.note_schema import TitleRequest, TitleResponse
 
 router = APIRouter()
 
@@ -87,3 +89,34 @@ def delete_note(
         raise HTTPException(status_code=403, detail="Not allowed")
 
     return {"message": "Note deleted successfully"}
+
+
+
+@router.post("/notes/{note_id}/summarize")
+async def summarize_note(
+    note_id: int,
+    db: Session = Depends(get_db),
+    user_id: int = Depends(get_current_user)
+):
+
+    result = await note_service.summarize_note(
+        db,
+        note_id,
+        user_id
+    )
+
+    if result is None:
+        raise HTTPException(status_code=404, detail="Note not found")
+
+    if result == "unauthorized":
+        raise HTTPException(status_code=403, detail="Not allowed")
+
+    return result
+
+
+@router.post("/notes/generate-title", response_model=TitleResponse)
+async def generate_note_title(data: TitleRequest):
+
+    title = await generate_title(data.content)
+
+    return {"title": title}

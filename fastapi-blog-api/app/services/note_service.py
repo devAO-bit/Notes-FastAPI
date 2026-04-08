@@ -1,5 +1,6 @@
 from sqlalchemy.orm import Session
 from app.models.note_model import Note
+from app.services.ai_service import summarize_text
 
 
 def create_note(db: Session, title: str, content: str, user_id: int):
@@ -66,3 +67,23 @@ def delete_note(db: Session, note_id: int, user_id: int):
     db.commit()
 
     return True
+
+
+
+async def summarize_note(db, note_id: int, user_id: int):
+
+    note = db.query(Note).filter(Note.id == note_id).first()
+
+    if not note:
+        return None
+
+    if note.user_id != user_id:
+        return "unauthorized"
+
+    summary = await summarize_text(note.content)
+
+    return {
+        "note_id": note.id,
+        "title": note.title,
+        "summary": summary
+    }

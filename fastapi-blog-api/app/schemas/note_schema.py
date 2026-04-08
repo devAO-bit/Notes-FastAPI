@@ -13,3 +13,11 @@ class NoteResponse(BaseModel):
 
     class Config:
         orm_mode = True
+
+
+class TitleRequest(BaseModel):
+    content: str
+
+
+class TitleResponse(BaseModel):
+    title: str

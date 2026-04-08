@@ -14,13 +14,13 @@ router = APIRouter()
 
 
 @router.post("/notes", response_model=NoteResponse)
-def create_note(
+async def create_note(
     note: NoteCreate,
     db: Session = Depends(get_db),
     user_id: int = Depends(get_current_user)
 ):
 
-    return note_service.create_note(
+    return await note_service.create_note(
         db,
         note.title,
         note.content,

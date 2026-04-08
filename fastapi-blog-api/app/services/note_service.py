@@ -1,10 +1,12 @@
 from sqlalchemy.orm import Session
 from app.models.note_model import Note
 from app.services.ai_service import summarize_text
+from app.services.ai_service import generate_title
 
 
-def create_note(db: Session, title: str, content: str, user_id: int):
-
+async def create_note(db, title: str, content: str, user_id: int):
+    if not title:
+        title = await generate_title(content)
     note = Note(
         title=title,
         content=content,

@@ -1,7 +1,8 @@
 from pydantic import BaseModel
+from typing import Optional
 
 class NoteCreate(BaseModel):
-    title: str
+    title: Optional[str] = None
     content: str
 
 

@@ -26,8 +26,11 @@ async def summarize_text(text: str):
 async def generate_title(content: str):
 
     prompt = f"""
-Generate a short and clear title (max 8 words) for this note:
+Generate ONLY ONE short title (maximum 6 words).
+Return ONLY the title text.
+Do not explain anything.
 
+Note:
 {content}
 """
 
@@ -44,4 +47,8 @@ Generate a short and clear title (max 8 words) for this note:
 
         data = response.json()
 
-        return data["response"].strip()
+        title = data["response"].strip()
+
+        title = title.split("\n")[0]
+
+        return title

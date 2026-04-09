@@ -1,7 +1,11 @@
 from sqlalchemy.orm import Session
 from app.models.note_model import Note
+
 from app.services.ai_service import summarize_text
 from app.services.ai_service import generate_title
+
+from app.services.embedding_service import create_embedding
+from app.services.vector_store import add_note_embedding
 
 
 async def create_note(db, title: str, content: str, user_id: int):
@@ -16,6 +20,9 @@ async def create_note(db, title: str, content: str, user_id: int):
     db.add(note)
     db.commit()
     db.refresh(note)
+
+    embedding = create_embedding(content)
+    add_note_embedding(note.id, embedding)
 
     return note
 

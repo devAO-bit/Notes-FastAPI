@@ -9,6 +9,7 @@ from app.services import note_service
 from app.utils.dependencies import get_current_user
 from app.services.ai_service import generate_title
 from app.schemas.note_schema import TitleRequest, TitleResponse
+from app.services import chat_service
 
 router = APIRouter()
 
@@ -120,3 +121,14 @@ async def generate_note_title(data: TitleRequest):
     title = await generate_title(data.content)
 
     return {"title": title}
+
+
+@router.post("/notes/chat")
+async def chat_with_notes(
+    question: str,
+    db: Session = Depends(get_db)
+):
+
+    answer = await chat_service.answer_question(question, db)
+
+    return {"answer": answer}

@@ -23,8 +23,12 @@ def search_notes(query_embedding, k=3):
 
     results = []
 
-    for idx in indices[0]:
+    for i, idx in enumerate(indices[0]):
         if idx != -1 and idx < len(notes_data):
-            results.append(notes_data[idx])
+            distance = distances[0][i]
+
+            # filter bad matches based on distance threshold (you can adjust this threshold)
+            if distance < 1.2: 
+                results.append(notes_data[idx])
 
     return results

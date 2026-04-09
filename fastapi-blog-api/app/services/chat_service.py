@@ -13,18 +13,22 @@ async def answer_question(question, db):
     if not note_ids:
         return "No relevant notes found."
 
-    notes = db.query(Note).filter(Note.id.in_(note_ids)).all()
+    notes = db.query(Note).filter(Note.id.in_(note_ids)).limit(3).all()
 
-    context = "\n".join([note.content for note in notes])
+    context = "\n".join(
+        [f"Title: {note.title}\nContent: {note.content}" for note in notes]
+    )
 
     prompt = f"""
-Use the notes below to answer the question.
+You are an assistant that answers questions using the user's notes.
 
 Notes:
 {context}
 
 Question:
 {question}
+
+Give a concise answer using the notes.
 """
 
     answer = await summarize_text(prompt)   # ✅ VERY IMPORTANT
